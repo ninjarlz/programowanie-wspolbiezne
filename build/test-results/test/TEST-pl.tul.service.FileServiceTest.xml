@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="pl.tul.service.FileServiceTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2021-11-07T19:36:12" hostname="DESKTOP-6F6LDNS" time="5.307">
+  <properties/>
+  <testcase name="singleThreadWaitingTimeIncludedSubmittedContinuouslyTest()" classname="pl.tul.service.FileServiceTest" time="5.307"/>
+  <system-out><![CDATA[20:36:13.184 [pool-1-thread-1] INFO  pl.tul.service.FileThread - 3000Mb file - start of execution
+20:36:16.194 [pool-1-thread-1] INFO  pl.tul.service.FileThread - 3000Mb file - end of execution
+20:36:16.194 [pool-1-thread-1] INFO  pl.tul.service.FileThread - 1000Mb file - start of execution
+20:36:17.208 [pool-1-thread-1] INFO  pl.tul.service.FileThread - 1000Mb file - end of execution
+20:36:17.208 [pool-1-thread-1] INFO  pl.tul.service.FileThread - 200Mb file - start of execution
+20:36:17.410 [pool-1-thread-1] INFO  pl.tul.service.FileThread - 200Mb file - end of execution
+20:36:17.410 [pool-1-thread-1] INFO  pl.tul.service.FileThread - 10Mb file - start of execution
+20:36:17.425 [pool-1-thread-1] INFO  pl.tul.service.FileThread - 10Mb file - end of execution
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
