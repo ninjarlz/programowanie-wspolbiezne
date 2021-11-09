@@ -4,14 +4,16 @@ import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
+@Getter
 public class FileThread implements Runnable {
 
-    public FileThread(long fileSize) {
+    public FileThread(String id, long fileSize) {
+        this.id = id;
         this.fileSize = fileSize;
         creationTimestamp = System.currentTimeMillis();
     }
 
-    @Getter
+    private final String id;
     private final long fileSize;
     private final long creationTimestamp;
 

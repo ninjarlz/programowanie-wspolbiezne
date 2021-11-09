@@ -1,14 +1,15 @@
 package pl.tul.service;
 
 import java.util.Comparator;
-import java.util.concurrent.ExecutorService;
+import java.util.List;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class FileService {
 
-    private final ExecutorService executorService;
+    private final ThreadPoolExecutor executorService;
 
     public FileService(int threadsNum, boolean isWaitingTimeIncludedInPriority) {
         Comparator<Runnable> fileThreadComparator = getThreadsComparator(isWaitingTimeIncludedInPriority);
@@ -27,6 +28,13 @@ public class FileService {
 
     public boolean isTerminated() {
         return executorService.isTerminated();
+    }
+
+    public List<FileThread> getWaitingFileThreads() {
+        return executorService.getQueue().stream().map(t -> {
+            throwIfWrongThreadType(t);
+            return (FileThread) t;
+        }).collect(Collectors.toList());
     }
 
     private Comparator<Runnable> getThreadsComparator(boolean isWaitingTimeIncludedInPriority) {
