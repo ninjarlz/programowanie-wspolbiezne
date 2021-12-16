@@ -1,21 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="pl.tul.service.FileServiceTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2021-11-08T22:51:29" hostname="DESKTOP-6F6LDNS" time="9.472">
+<testsuite name="pl.tul.service.FileServiceTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2021-12-15T02:53:47" hostname="DESKTOP-6F6LDNS" time="0.011">
   <properties/>
-  <testcase name="singleThreadWaitingTimeNotIncludedAllSubmittedAtOnceTest()" classname="pl.tul.service.FileServiceTest" time="9.472"/>
-  <system-out><![CDATA[23:51:29.910 [pool-1-thread-1] INFO  pl.tul.service.FileThread - 3000Mb file - start of execution
-23:51:32.931 [pool-1-thread-1] INFO  pl.tul.service.FileThread - 3000Mb file - end of execution
-23:51:32.931 [pool-1-thread-1] INFO  pl.tul.service.FileThread - 50Mb file - start of execution
-23:51:32.996 [pool-1-thread-1] INFO  pl.tul.service.FileThread - 50Mb file - end of execution
-23:51:32.996 [pool-1-thread-1] INFO  pl.tul.service.FileThread - 100Mb file - start of execution
-23:51:33.104 [pool-1-thread-1] INFO  pl.tul.service.FileThread - 100Mb file - end of execution
-23:51:33.104 [pool-1-thread-1] INFO  pl.tul.service.FileThread - 300Mb file - start of execution
-23:51:33.419 [pool-1-thread-1] INFO  pl.tul.service.FileThread - 300Mb file - end of execution
-23:51:33.419 [pool-1-thread-1] INFO  pl.tul.service.FileThread - 600Mb file - start of execution
-23:51:34.022 [pool-1-thread-1] INFO  pl.tul.service.FileThread - 600Mb file - end of execution
-23:51:34.022 [pool-1-thread-1] INFO  pl.tul.service.FileThread - 1000Mb file - start of execution
-23:51:35.030 [pool-1-thread-1] INFO  pl.tul.service.FileThread - 1000Mb file - end of execution
-23:51:35.030 [pool-1-thread-1] INFO  pl.tul.service.FileThread - 3000Mb file - start of execution
-23:51:38.033 [pool-1-thread-1] INFO  pl.tul.service.FileThread - 3000Mb file - end of execution
-]]></system-out>
+  <testcase name="sumTest()" classname="pl.tul.service.FileServiceTest" time="0.011"/>
+  <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>
