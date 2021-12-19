@@ -26,8 +26,8 @@ public class Main {
         public void start(Stage stage) throws Exception {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(SCENE_VIEW_PATH));
             Parent root = fxmlLoader.load();
-            FXMLController fxmlController = fxmlLoader.getController();
-            initData(fxmlController);
+            //FXMLController fxmlController = fxmlLoader.getController();
+            //initData(fxmlController);
             Scene scene = new Scene(root);
             stage.setTitle(WINDOW_TITLE);
             stage.setScene(scene);
