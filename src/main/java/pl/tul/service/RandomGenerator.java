@@ -12,8 +12,8 @@ public class RandomGenerator {
     private final AtomicLong fileClientIdCounter = new AtomicLong();
     private static final String FILE_ID_PREFIX = "FILE-";
     private final AtomicLong fileIdCounter = new AtomicLong();
-    private static final long FILE_SIZE_SMALL_LOWER_LIMIT = 1000L;
-    private static final long FILE_SIZE_SMALL_UPPER_LIMIT = 4000L;
+    private static final long FILE_SIZE_SMALL_LOWER_LIMIT = 3000L;
+    private static final long FILE_SIZE_SMALL_UPPER_LIMIT = 6000L;
     private static final long FILE_SIZE_BIG_LOWER_LIMIT = 15000L;
     private static final long FILE_SIZE_BIG_UPPER_LIMIT = 30000L;
     private static final long UPLOAD_UPDATE_STEP = 100;
@@ -25,6 +25,11 @@ public class RandomGenerator {
 
     public String generateFileId() {
         return FILE_ID_PREFIX + fileIdCounter.incrementAndGet();
+    }
+
+    public long getRandomFileSize() {
+        long size = FILE_SIZE_SMALL_LOWER_LIMIT + (long) (random.nextDouble() * (FILE_SIZE_BIG_UPPER_LIMIT - FILE_SIZE_SMALL_LOWER_LIMIT));
+        return (size / UPLOAD_UPDATE_STEP) * UPLOAD_UPDATE_STEP;
     }
 
     public long getRandomSmallFileSize() {

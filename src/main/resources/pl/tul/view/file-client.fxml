@@ -1,28 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<AnchorPane prefHeight="200.0" prefWidth="990.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane prefHeight="70.0" prefWidth="990.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1">
     <children>
         <Label layoutX="25.0" layoutY="4.0" text="FILE-CLIENT-1" underline="true">
             <font>
                 <Font name="System Bold" size="15.0" />
             </font>
         </Label>
-        <Button layoutX="201.0" layoutY="2.0" mnemonicParsing="false" text="Add small file" />
-        <Button layoutX="336.0" layoutY="2.0" mnemonicParsing="false" text="Add big file" />
-        <Button layoutX="461.0" layoutY="2.0" mnemonicParsing="false" text="Add few small files" />
-        <Button layoutX="623.0" layoutY="2.0" mnemonicParsing="false" text="Add few big files" />
+        <Button layoutX="165.0" layoutY="2.0" mnemonicParsing="false" text="Add small file" />
+        <Button layoutX="299.0" layoutY="2.0" mnemonicParsing="false" text="Add big file" />
+        <Button layoutX="413.0" layoutY="1.0" mnemonicParsing="false" text="Add few small files" />
+        <Button layoutX="565.0" layoutY="2.0" mnemonicParsing="false" text="Add few big files" />
       <Button layoutX="795.0" layoutY="2.0" mnemonicParsing="false" text="Remove" />
-        <ScrollPane layoutY="30.0" prefHeight="169.0" prefWidth="980.0">
-            <content>
-                <VBox prefHeight="171.0" prefWidth="940.0" />
-            </content>
-        </ScrollPane>
+      <Label layoutX="25.0" layoutY="44.0" text="Waiting time">
+         <font>
+            <Font name="System Bold Italic" size="12.0" />
+         </font>
+      </Label>
+      <Label layoutX="110.0" layoutY="44.0" text="1000 ms">
+         <font>
+            <Font name="System Italic" size="12.0" />
+         </font>
+      </Label>
+      <Label layoutX="183.0" layoutY="44.0" text="Files">
+         <font>
+            <Font name="System Bold Italic" size="12.0" />
+         </font>
+      </Label>
+      <Label layoutX="237.0" layoutY="44.0" text="File-1 (1000 MB);  File-2 (2500MB);  File-3 (30000 MB)">
+         <font>
+            <Font name="System Italic" size="12.0" />
+         </font>
+      </Label>
     </children>
 </AnchorPane>

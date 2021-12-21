@@ -10,7 +10,7 @@ public class FileThread {
 
     private static final long UPLOAD_UPDATE_STEP = 100;
 
-    private final TriConsumer<File, FileThread, Long> fileUploadProcessingCallback;
+    private final TriConsumer<FileUpload, FileThread, Long> fileUploadProcessingCallback;
 
     @Getter
     private final String id;
@@ -19,24 +19,24 @@ public class FileThread {
     @Setter
     private boolean isActive = false;
 
-    public FileThread(String id, TriConsumer<File, FileThread, Long> fileUploadProcessingCallback) {
+    public FileThread(String id, TriConsumer<FileUpload, FileThread, Long> fileUploadProcessingCallback) {
         this.id = id;
         this.fileUploadProcessingCallback = fileUploadProcessingCallback;
     }
 
     @SuppressWarnings("BusyWait")
-    public void execute(File file) {
+    public void execute(FileUpload fileUpload) {
         try {
-            log.info("File upload begin - id {}, owner {}, size {}", file.getId(), file.getClientId(), file.getFileSize());
-            for (long i = 0; i < file.getFileSize(); i += UPLOAD_UPDATE_STEP) {
+            log.info("File upload begin - id {}, owner {}, size {}", fileUpload.getFileId(), fileUpload.getClientId(), fileUpload.getFileSize());
+            for (long i = 0; i < fileUpload.getFileSize(); i += UPLOAD_UPDATE_STEP) {
                 long currentMillis = System.currentTimeMillis();
-                fileUploadProcessingCallback.accept(file, this, i);
+                fileUploadProcessingCallback.accept(fileUpload, this, i);
                 long fileUploadProcessingCallbackTime = System.currentTimeMillis() - currentMillis;
                 Thread.sleep(UPLOAD_UPDATE_STEP - fileUploadProcessingCallbackTime);
             }
-            log.info("File upload finished - id {}, owner {}, size {}", file.getId(), file.getClientId(), file.getFileSize());
+            log.info("File upload finished - id {}, owner {}, size {}", fileUpload.getFileId(), fileUpload.getClientId(), fileUpload.getFileSize());
         } catch (InterruptedException e) {
-            log.error("File upload error - id {}, owner {}, size {}, reason {}", file.getId(), file.getClientId(), file.getFileSize(), e);
+            log.error("File upload error - id {}, owner {}, size {}, reason {}", fileUpload.getFileId(), fileUpload.getClientId(), fileUpload.getFileSize(), e);
         }
     }
 }

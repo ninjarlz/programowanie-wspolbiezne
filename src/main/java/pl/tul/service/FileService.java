@@ -7,7 +7,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.function.BiConsumer;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
 @Log4j2
@@ -17,12 +18,13 @@ public class FileService {
     private final Map<String, FileClient> waitingFileClients = new ConcurrentHashMap<>();
     private final int threadsNum;
     private final List<FileThread> fileThreads = Collections.synchronizedList(new ArrayList<>());
-    private final BiConsumer<File, FileThread> fileUploadBeginCallback;
+    private final TriConsumer<FileClient, FileUpload, FileThread> fileUploadBeginCallback;
     private final Consumer<FileThread> fileUploadFinishedCallback;
+    private final Lock lock = new ReentrantLock();
     private static final String FILE_THREAD_ID_PREFIX = "fileThread";
 
-    public FileService(int threadsNum, BiConsumer<File, FileThread> fileUploadBeginCallback,
-                       TriConsumer<File, FileThread, Long> fileUploadProcessingCallback,
+    public FileService(int threadsNum, TriConsumer<FileClient, FileUpload, FileThread> fileUploadBeginCallback,
+                       TriConsumer<FileUpload, FileThread, Long> fileUploadProcessingCallback,
                        Consumer<FileThread> fileUploadFinishedCallback) {
         this.threadsNum = threadsNum;
         for (int i = 1; i <= threadsNum; i++) {
@@ -34,38 +36,62 @@ public class FileService {
     }
 
     public void addFileClient(FileClient fileClient) {
-        waitingFileClients.put(fileClient.getId(), fileClient);
-        if (!fileClient.getFileList().isEmpty() && shouldExecuteUploadOnAdd()) {
-            Collections.sort(fileClient.getFileList());
-            executeFileUpload(fileClient.getFileList().get(0));
+        lock.lock();
+        try {
+            waitingFileClients.put(fileClient.getId(), fileClient);
+            if (!fileClient.getFileList().isEmpty() && shouldExecuteUploadOnAdd()) {
+                Collections.sort(fileClient.getFileList());
+                File file = fileClient.getFileList().get(0);
+                executeFileUpload(new FileUpload(file.getId(), fileClient.getId(), file.getFileSize()));
+            }
+        } finally {
+            lock.unlock();
         }
     }
 
     public void removeFileClient(FileClient fileClient) {
-        waitingFileClients.remove(fileClient.getId());
+        lock.lock();
+        try {
+            waitingFileClients.remove(fileClient.getId());
+        } finally {
+            lock.unlock();
+        }
     }
 
     public void addFile(File file) {
-        if (!waitingFileClients.containsKey(file.getClientId())) {
-            throw new IllegalArgumentException(String.format("There is no client with the id %s in the queue", file.getClientId()));
+        try {
+            if (!waitingFileClients.containsKey(file.getClientId())) {
+                throw new IllegalArgumentException(String.format("There is no client with the id %s in the queue", file.getClientId()));
+            }
+            if (shouldExecuteUploadOnAdd()) {
+                executeFileUpload(new FileUpload(file.getId(), file.getClientId(), file.getFileSize()));
+                return;
+            }
+            FileClient fileClient = waitingFileClients.get(file.getClientId());
+            List<File> files = Collections.synchronizedList(new ArrayList<>(fileClient.getFileList()));
+            if (files.isEmpty()) {
+                fileClient.resetWaitingTime();
+            }
+            files.add(file);
+            Collections.sort(files);
+            fileClient.setFileList(files);
+        } finally {
+            lock.unlock();
         }
-        if (shouldExecuteUploadOnAdd()) {
-            executeFileUpload(file);
-            return;
-        }
-        waitingFileClients.get(file.getClientId()).getFileList().add(file);
     }
 
     private boolean shouldExecuteUploadOnAdd() {
         return fileThreads.stream().filter(FileThread::isActive).count() < threadsNum;
     }
 
-    private List<File> getDataForAuction() {
+    private List<FileUpload> getDataForAuction() {
         waitingFileClients.values().forEach(fileClient -> Collections.sort(fileClient.getFileList()));
         return waitingFileClients.values().stream().collect(ArrayList::new,
                 (list, fileClient) -> {
                     if (!fileClient.getFileList().isEmpty()) {
-                        list.add(fileClient.getFileList().get(0));
+                        File file = fileClient.getFileList().get(0);
+                        list.add(new FileUpload(file.getId(), fileClient.getId(), file.getFileSize(), fileClient.getWaitingTime()));
+                        fileClient.resetWaitingTime();
                     }
                 },
                 ArrayList::addAll);
@@ -75,41 +101,49 @@ public class FileService {
         return waitingFileClients.values().stream().reduce(0, (sum, fileClient) -> sum += fileClient.getFileList().size(), Integer::sum);
     }
 
-    private File getFileFromAuction(List<File> files) {
+    private FileUpload getFileUploadFromAuction(List<FileUpload> files) {
         int numberOfFiles = getFilesCount();
-        Optional<File> optionalFile = files.stream().max(new AuctionComparator(numberOfFiles));
-        File file = optionalFile.orElseThrow(() -> new IllegalArgumentException("Files list cannot be empty"));
-        removeFileFromQueue(file);
-        return file;
+        Optional<FileUpload> optionalFile = files.stream().max(new AuctionComparator(numberOfFiles));
+        FileUpload fileUpload = optionalFile.orElseThrow(() -> new IllegalArgumentException("Files list cannot be empty"));
+        removeFileFromQueue(fileUpload);
+        return fileUpload;
     }
 
-    private void removeFileFromQueue(File file) {
-        if (!waitingFileClients.containsKey(file.getClientId())) {
+    private void removeFileFromQueue(FileUpload fileUpload) {
+        if (!waitingFileClients.containsKey(fileUpload.getClientId())) {
             return;
         }
-        waitingFileClients.get(file.getClientId()).getFileList().remove(file);
+        List<File> files = waitingFileClients.get(fileUpload.getClientId()).getFileList();
+        files.removeIf(f -> f.getId().equals(fileUpload.getFileId()));
+        Collections.sort(files);
     }
 
     private void performAuction() {
-        List<File> files = getDataForAuction();
-        if (files.isEmpty()) {
-            return;
+        lock.lock();
+        try {
+            List<FileUpload> fileUploads = getDataForAuction();
+            if (fileUploads.isEmpty()) {
+                return;
+            }
+            FileUpload fileUpload = getFileUploadFromAuction(fileUploads);
+            executeFileUpload(fileUpload);
+        } finally {
+            lock.unlock();
         }
-        File file = getFileFromAuction(files);
-        executeFileUpload(file);
     }
 
-    private void executeFileUpload(File file) {
+    private void executeFileUpload(FileUpload fileUpload) {
         executorService.execute(() -> {
             long currentTimeMillis = System.currentTimeMillis();
+            FileClient fileClient = waitingFileClients.get(fileUpload.getClientId());
             FileThread fileThread = fileThreads.stream().filter(f -> !f.isActive()).findFirst().orElseThrow();
             fileThread.setActive(true);
-            fileUploadBeginCallback.accept(file, fileThread);
-            fileThread.execute(file);
+            fileUploadBeginCallback.accept(fileClient, fileUpload, fileThread);
+            fileThread.execute(fileUpload);
             fileUploadFinishedCallback.accept(fileThread);
             fileThread.setActive(false);
             log.info("Execution for file - [id - {}, owner - {}, size - {} MB] took: "
-                    + (System.currentTimeMillis() - currentTimeMillis), file.getId(), file.getClientId(), file.getFileSize());
+                    + (System.currentTimeMillis() - currentTimeMillis), fileUpload.getFileId(), fileUpload.getClientId(), fileUpload.getFileSize());
             performAuction();
         });
     }

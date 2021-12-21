@@ -16,11 +16,6 @@ public class File implements Comparable<File> {
     private final long fileSize;
     @Getter
     private final String clientId;
-    private final long initialTimestamp = System.currentTimeMillis();
-    public long getWaitingTime() {
-        return System.currentTimeMillis() - initialTimestamp;
-    }
-
     @Override
     public int compareTo(File o) {
         return Long.compare(fileSize, o.fileSize);
