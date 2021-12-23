@@ -168,7 +168,7 @@ public class FXMLController implements Initializable {
     private List<File> createRandomFiles(String fileClientId) {
         List<File> files = Collections.synchronizedList(new ArrayList<>());
         IntStream.range(0, RANDOM_FILES_NUMBER).forEach(i -> {
-            long size = randomGenerator.getRandomSmallFileSize();
+            long size = randomGenerator.getRandomFileSize();
             String id = randomGenerator.generateFileId();
             files.add(new File(id, size, fileClientId));
         });
