@@ -31,7 +31,6 @@ public class FXMLController implements Initializable {
     private static final int FEW_FILES_NUMBER = 3;
     private static final int RANDOM_FILES_NUMBER = 6;
     private static final String WAITING_LABEL = "Waiting...";
-    private static final String EMPTY_LABEL = "Waiting...";
     private static final String FILE_SIZE_SUFFIX = " MB";
     private final Map<String, Color> fileClientsColors = new ConcurrentHashMap<>();
     private final Map<String, ScheduledFuture<?>> fileClientsWaitingTimesRefreshTasks = new ConcurrentHashMap<>();
@@ -49,7 +48,6 @@ public class FXMLController implements Initializable {
 
     private void fileUploadBeginCallback(FileClient fileClient, FileUpload fileUpload, FileThread fileThread) {
         Platform.runLater(() -> {
-            log.info("UPLOAD KURWA: {}, {}, {}", fileClient.getId(), fileUpload.getFileId(), fileThread.getId());
             AnchorPane fileClientPanel = getFileClientPanel(fileUpload.getClientId());
             Color fileClientColor = fileClientsColors.get(fileUpload.getClientId());
             Label filesValueLabel = (Label) fileClientPanel.getChildren().get(9);
@@ -90,11 +88,11 @@ public class FXMLController implements Initializable {
             Label ownerLabel = (Label) threadPanel.getChildren().get(1);
             ownerLabel.setStyle("-fx-text-fill: black;");
             Label ownerValueLabel = (Label) threadPanel.getChildren().get(2);
-            ownerValueLabel.setText(EMPTY_LABEL);
+            ownerValueLabel.setText(WAITING_LABEL);
             Label sizeLabel = (Label) threadPanel.getChildren().get(3);
             sizeLabel.setStyle("-fx-text-fill: black;");
             Label sizeValueLabel = (Label) threadPanel.getChildren().get(5);
-            sizeValueLabel.setText(EMPTY_LABEL);
+            sizeValueLabel.setText(WAITING_LABEL);
             ProgressBar progressBar = (ProgressBar) threadPanel.getChildren().get(4);
             progressBar.setProgress(0.);
             progressBar.setStyle("-fx-accent: black");

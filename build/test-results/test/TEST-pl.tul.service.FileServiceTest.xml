@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="pl.tul.service.FileServiceTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2021-12-15T02:53:47" hostname="DESKTOP-6F6LDNS" time="0.011">
+<testsuite name="pl.tul.service.FileServiceTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2021-12-23T22:52:21" hostname="DESKTOP-6F6LDNS" time="0.332">
   <properties/>
-  <testcase name="sumTest()" classname="pl.tul.service.FileServiceTest" time="0.011"/>
+  <testcase name="test()" classname="pl.tul.service.FileServiceTest" time="0.332"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>
