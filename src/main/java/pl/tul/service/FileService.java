@@ -7,7 +7,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
@@ -20,7 +19,7 @@ public class FileService {
     private final List<FileThread> fileThreads = Collections.synchronizedList(new ArrayList<>());
     private final TriConsumer<FileClient, FileUpload, FileThread> fileUploadBeginCallback;
     private final Consumer<FileThread> fileUploadFinishedCallback;
-    private final Lock lock = new ReentrantLock();
+    private final ReentrantLock lock = new ReentrantLock();
     private static final String FILE_THREAD_ID_PREFIX = "fileThread";
 
     public FileService(int threadsNum, TriConsumer<FileClient, FileUpload, FileThread> fileUploadBeginCallback,
@@ -59,6 +58,7 @@ public class FileService {
     }
 
     public void addFile(File file) {
+        lock.lock();
         try {
             if (!waitingFileClients.containsKey(file.getClientId())) {
                 throw new IllegalArgumentException(String.format("There is no client with the id %s in the queue", file.getClientId()));
@@ -91,19 +91,14 @@ public class FileService {
                     if (!fileClient.getFileList().isEmpty()) {
                         File file = fileClient.getFileList().get(0);
                         list.add(new FileUpload(file.getId(), fileClient.getId(), file.getFileSize(), fileClient.getWaitingTime()));
-                        fileClient.resetWaitingTime();
                     }
                 },
                 ArrayList::addAll);
     }
 
-    private int getFilesCount() {
-        return waitingFileClients.values().stream().reduce(0, (sum, fileClient) -> sum += fileClient.getFileList().size(), Integer::sum);
-    }
-
     private FileUpload getFileUploadFromAuction(List<FileUpload> files) {
-        int numberOfFiles = getFilesCount();
-        Optional<FileUpload> optionalFile = files.stream().max(new AuctionComparator(numberOfFiles));
+        int numberOfFileClients = waitingFileClients.values().size();
+        Optional<FileUpload> optionalFile = files.stream().max(new AuctionComparator(numberOfFileClients));
         FileUpload fileUpload = optionalFile.orElseThrow(() -> new IllegalArgumentException("Files list cannot be empty"));
         removeFileFromQueue(fileUpload);
         return fileUpload;
@@ -136,6 +131,7 @@ public class FileService {
         executorService.execute(() -> {
             long currentTimeMillis = System.currentTimeMillis();
             FileClient fileClient = waitingFileClients.get(fileUpload.getClientId());
+            fileClient.resetWaitingTime();
             FileThread fileThread = fileThreads.stream().filter(f -> !f.isActive()).findFirst().orElseThrow();
             fileThread.setActive(true);
             fileUploadBeginCallback.accept(fileClient, fileUpload, fileThread);
