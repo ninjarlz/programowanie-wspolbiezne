@@ -99,9 +99,7 @@ public class FileService {
     private FileUpload getFileUploadFromAuction(List<FileUpload> files) {
         int numberOfFileClients = waitingFileClients.values().size();
         Optional<FileUpload> optionalFile = files.stream().max(new AuctionComparator(numberOfFileClients));
-        FileUpload fileUpload = optionalFile.orElseThrow(() -> new IllegalArgumentException("Files list cannot be empty"));
-        removeFileFromQueue(fileUpload);
-        return fileUpload;
+        return optionalFile.orElseThrow(() -> new IllegalArgumentException("Files list cannot be empty"));
     }
 
     private void removeFileFromQueue(FileUpload fileUpload) {
@@ -121,6 +119,7 @@ public class FileService {
                 return;
             }
             FileUpload fileUpload = getFileUploadFromAuction(fileUploads);
+            removeFileFromQueue(fileUpload);
             executeFileUpload(fileUpload);
         } finally {
             lock.unlock();
