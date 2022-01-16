@@ -130,7 +130,6 @@ public class FileService {
         executorService.execute(() -> {
             long currentTimeMillis = System.currentTimeMillis();
             FileClient fileClient = waitingFileClients.get(fileUpload.getClientId());
-            fileClient.resetWaitingTime();
             FileThread fileThread = fileThreads.stream().filter(f -> !f.isActive()).findFirst().orElseThrow();
             fileThread.setActive(true);
             fileUploadBeginCallback.accept(fileClient, fileUpload, fileThread);
